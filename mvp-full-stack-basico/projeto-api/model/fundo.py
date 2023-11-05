@@ -25,7 +25,7 @@ class Fundo(Base):
 
         Arguments:
             cnpj: cnpj do fundo.
-            raao_social: nome do fundo
+            razao_social: nome do fundo
             gestor: gestor do fundo
             classe_fundo: classe do fundo
             tipo_fundo: tipo do fundo
@@ -36,7 +36,7 @@ class Fundo(Base):
         self.gestor = gestor
         self.classe_fundo = classe_fundo
         self.tipo_fundo = tipo_fundo
-        
+
         # se não for informada, será o data exata da inserção no banco
         if data_insercao:
             self.data_insercao = data_insercao
