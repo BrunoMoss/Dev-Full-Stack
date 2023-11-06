@@ -6,6 +6,7 @@ from  model import Base
 
 
 class Fundo(Base):
+    
     __tablename__ = 'fundo'
 
     cnpj = Column(String(12), primary_key=True)
@@ -34,6 +35,7 @@ class Fundo(Base):
         self.cnpj = cnpj
         self.razao_social = razao_social
         self.gestor = gestor
+        self.administrador = administrador
         self.classe_fundo = classe_fundo
         self.tipo_fundo = tipo_fundo
 
