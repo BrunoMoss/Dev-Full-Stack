@@ -1,12 +1,13 @@
-from sqlalchemy import Column, String, Integer, DateTime, ForeignKey
+from sqlalchemy import Column, String, DateTime
 from datetime import datetime
 from typing import Union
+from sqlalchemy.orm import relationship
 
 from  model import Base
 
 
 class Fundo(Base):
-    
+
     __tablename__ = 'fundo'
 
     cnpj = Column(String(12), primary_key=True)
@@ -17,6 +18,7 @@ class Fundo(Base):
     tipo_fundo = Column(String(50))
     data_insercao = Column(DateTime, default=datetime.now())
 
+    portfolio = relationship("Portfolio")
 
     def __init__(self, cnpj:str, razao_social:str, gestor:str,
                  administrador:str,classe_fundo:str,tipo_fundo:str,

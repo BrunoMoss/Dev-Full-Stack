@@ -5,6 +5,7 @@ import os
 # importando os elementos definidos no modelo
 from model.base import Base
 from model.fundo import Fundo
+from model.portfolio import Portfolio
 
 db_path = "mvp-full-stack-basico/projeto-api/database/"
 # Verifica se o diretorio não existe
