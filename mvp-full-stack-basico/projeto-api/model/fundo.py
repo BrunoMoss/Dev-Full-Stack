@@ -19,6 +19,7 @@ class Fundo(Base):
     data_insercao = Column(DateTime, default=datetime.now())
 
     portfolio = relationship("Portfolio")
+    cota = relationship("Cota")
 
     def __init__(self, cnpj:str, razao_social:str, gestor:str,
                  administrador:str,classe_fundo:str,tipo_fundo:str,

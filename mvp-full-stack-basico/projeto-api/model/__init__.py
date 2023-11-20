@@ -6,8 +6,9 @@ import os
 from model.base import Base
 from model.fundo import Fundo
 from model.portfolio import Portfolio
+from model.cota import Cota
 
-db_path = "mvp-full-stack-basico/projeto-api/database/"
+db_path = "projeto-api/database/"
 # Verifica se o diretorio não existe
 if not os.path.exists(db_path):
    # então cria o diretorio
