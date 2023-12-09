@@ -1,12 +1,17 @@
 from unicodedata import category
 from pydantic import BaseModel
 from typing import Optional, List
+from datetime import datetime
 
 
 class BuscaFundoSchema(BaseModel):
     cnpj: Optional[str]  = None
     razao_social: Optional[str] = "BRAM H FUNDO DE INVESTIMENTO AÇÕES INSTITUCIONAL"
 
+class BuscaTopFiveSchema(BaseModel):
+    classe: str = None
+    data_inicial: datetime = None
+    data_final: datetime = None
 
 class FundoViewSchema(BaseModel):
     cnpj: str = "01.496.940/0001-86"

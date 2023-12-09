@@ -1,1 +1,0 @@
-select distinct dt_comptc FROM portfolio

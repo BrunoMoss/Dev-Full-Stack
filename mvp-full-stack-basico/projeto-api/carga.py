@@ -94,7 +94,10 @@ class DadosCVM():
                     df_portfolio = df_portfolio[df_portfolio['cnpj'].isin(lista_fundos)]
                     df_portfolio['data_insercao'] = datetime.now()
                     df_portfolio.to_sql(name='portfolio',con=self.__engine,if_exists='append',index=False)
-        return 1
+            return 1
+        else:
+            return 0 
+       
                     
     def getFundosValidos(self):
         session = Session()
@@ -114,7 +117,9 @@ class DadosCVM():
             df_cota = df_cota[df_cota['cnpj'].isin(lista_fundos)]
             df_cota['data_insercao'] = datetime.now()
             df_cota.to_sql(name='cota',con=self.__engine,if_exists='append',index=False)
-        return 1
+            return 1
+        else:
+            return 0
 
 def gerar_lista_meses(start_date, end_date):
     meses = []
