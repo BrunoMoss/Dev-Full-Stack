@@ -9,6 +9,10 @@ from flask_cors import CORS
 from flask import redirect
 from datetime import datetime, timedelta
 from schemas import *
+import numpy as np
+import requests
+from utils.calculator import Calculator
+import requests
 
 jwt = {
     "type": "http",
@@ -38,9 +42,34 @@ def home():
     """
     return redirect('/openapi')
 
-@app.post('/optimize', tags=[user_tag],
+@app.get('/optimize', tags=[user_tag],
          description='Cria um portfolio ótimo',security=security,responses={200:PortfolioSchema})
 @jwt_required()
-def optimaze(form: OptimizatonSchema):
-    return [{"asset":'PETR4',  'weight':1,'start_date':datetime.now()}]
+def optimaze(query: OptimizatonSchema):
+    n_assets_portfolio = query.n_assets_portfolio
+    asset_list = query.asset_list
+
+    end_date = datetime.today().replace(hour=0,minute=0,second=0)
+    start_date = (datetime.today()- timedelta(days=252)).replace(hour=0,minute=0,second=0)
+
+    if asset_list and asset_list != '':
+        url = f"http://localhost:5003/prices?n={n_assets_portfolio}&start_date={start_date}&end_date={end_date}"
+    else:
+        url = f"http://localhost:5003/prices?assets={asset_list}&start_date={start_date}&end_date={end_date}"
+
+    payload={}
+    headers = {}
+    response = requests.request("GET", url, headers=headers, data=payload)
+    data = response.json()
+    calc = Calculator(200,50)
+    calc.returns_list = calc.calculate_log_return(data)
+    portfolio = calc.optimize_portfolio()
+
+    return [{"asset":a,  'weight':round(w,2),'start_date': datetime.today().replace(hour=0,minute=0,second=0,microsecond=0)} for (a,w) in portfolio.items()]
+
+    
+    
+
+
+
     

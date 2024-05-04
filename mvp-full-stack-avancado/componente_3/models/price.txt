@@ -1,0 +1,45 @@
+from sqlalchemy import Column, String, Integer, DateTime, ForeignKey,Float
+from sqlalchemy.orm import relationship
+from sqlalchemy.schema import PrimaryKeyConstraint
+from datetime import datetime
+from typing import Union
+from  models import Base
+
+
+class Price(Base):
+
+    __tablename__ = 'prices'
+
+    asset = Column(Integer, primary_key=True)
+    date = Column(DateTime,primary_key=True)
+    vertex = Column(Integer, primary_key=True)
+    price = Column(Float,nullable=False)
+    pvalue = Column(Float,nullable=False)
+    volume = Column(Float, nullable=False)
+    data_insercao = Column(DateTime, default=datetime.now())
+
+    # Criando um requisito de unicidade envolvendo uma par de informações
+    __table_args__ = (PrimaryKeyConstraint("asset", "date","vertex", name="port_composite_key"),)
+
+    def __init__(self, asset:str,date:datetime,price:float,vertex:int,pvalue:float,volume:float, data_insercao:Union[DateTime, None] = None):
+        """
+        Cria um dado de rentabilidade projetada
+
+        Arguments:
+            asset: Ativo.
+            date: Data base do dado.
+            price: Valor do preço projetado.
+            vertex: número do período da projeção.
+            pvalue: p-value do teste estatístico jarque-bera.
+            volumn: volume médio negociado.
+            data_insercao: data de quando o retorno esperado foi inserido
+                           na base.
+        """
+        self.asset = asset
+        self.date = date
+        self.price = price
+        self.vertex = vertex
+        self.pvalue = pvalue
+        self.volume = volume
+        if data_insercao:
+            self.data_insercao = data_insercao

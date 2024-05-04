@@ -2,8 +2,8 @@ from sqlalchemy import Column, String, DateTime, ForeignKey,Float,Integer
 from datetime import datetime
 from typing import Union
 from sqlalchemy.orm import relationship
+from models import Base,Portfolio
 
-from  models import Base
 
 
 class User(Base):
@@ -35,3 +35,8 @@ class User(Base):
         # se não for informada, será o data exata da inserção no banco
         if dt_insert:
             self.dt_insert = dt_insert
+
+    def add_portfolio(self, portfolio:Portfolio):
+        """ Adiciona um novo comentário ao Produto
+        """
+        self.portfolios.append(portfolio)

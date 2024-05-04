@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify
 from flask_jwt_extended import create_access_token
 from flask_jwt_extended import get_jwt_identity
 from flask_jwt_extended import jwt_required
@@ -10,7 +10,8 @@ from flask import redirect
 import hmac
 from models import Session,User,Portfolio
 from schemas import *
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta,date
+import requests
 
 jwt = {
     "type": "http",
@@ -64,6 +65,7 @@ def create_user(form: UserSchema):
 
     return jsonify({'message': 'User created successfully'}), 201
 
+
 @app.get('/users/<string:username>', tags=[user_tag],responses={200:UserViewSchema,404:ErrorSchema},
          description='Consulta dados de um usuário',security=security)
 @jwt_required()
@@ -74,6 +76,111 @@ def get_user(path: UserPathSchema):
         return lista_usuario(user), 200
     else:
         return jsonify({'message': 'User not found'}), 404
+
+
+@app.post('/portfolio', tags=[user_tag],
+          responses={"200": {'message': 'Portfolio created successfully'}},description='Cadastro do portfolio de um usuário',security=security)
+@jwt_required()
+def create_portfolio(body: PortfolioBodyJsonSchema):
+    current_user = get_jwt_identity()
+    session = Session()
+    user = session.query(User).filter_by(username=current_user).first()
+    if len(user.portfolios) > 0:
+        next_id = max(user.portfolios,key=lambda x:x.id).id + 1
+    else:
+        next_id = 1
+    for p in body.portifolio:
+        portfolio = Portfolio(next_id,p.asset,p.weight,date.today(),None)
+        user.add_portfolio(portfolio)
+
+    session.commit()
+    session.close()
+
+    return jsonify({'message': 'Portfolio created successfully'}), 200
+
+
+@app.put('/portfolio', tags=[user_tag],
+          responses={"200": {'message': 'Portfolio updated successfully'}},description='Atualiza o portfolio de um usuário',security=security)
+@jwt_required()
+def update_portfolio(form: PortfolioUpdateSchema):
+    current_user = get_jwt_identity()
+    session = Session()
+    id_portfolios = [p.id for p in form.portfolios]
+    if form.close:
+        user = session.query(User).filter_by(username=current_user).first()
+        session.query(Portfolio).filter(Portfolio.user_id==user.id,Portfolio.id.in_(id_portfolios)).update({Portfolio.end_date:date.today()})
+    else:
+        for p in form.portfolios:
+            session.query(Portfolio).filter(Portfolio.id_pk==p.id_pk).update({Portfolio.asset:p.asset,Portfolio.weight:p.weight})
+    session.commit()
+    session.close()
+
+    return jsonify({'message': 'Portfolio updated successfully'}), 200
+
+@app.delete('/portfolio', tags=[user_tag],
+          responses={"200": {'message': 'Portfolio deleted successfully'}},description='Deleta o portfolio de um usuário',security=security)
+@jwt_required()
+def delete_portfolio(form: PortfolioDeleteSchema):
+    current_user = get_jwt_identity()
+    session = Session()
+    user = session.query(User).filter_by(username=current_user).first()
+    id_portfolio = form.id_portfolio
+    session.query(Portfolio).filter(Portfolio.user_id==user.id,Portfolio.id==id_portfolio).delete()
+   
+    session.commit()
+    session.close()
+
+    return jsonify({'message': 'Portfolio deleted successfully'}), 200
+
+
+@app.get('/portfolio', tags=[user_tag],
+          responses={"200": PortfolioViewSchema},description='Busca portifolio por id do usuário',security=security)
+@jwt_required()
+def get_portfolio(query: QueryPortfolio):
+    current_user = get_jwt_identity()
+    session = Session()
+    user_id = session.query(User).filter_by(username=current_user).first().id
+    
+    portfolios = session.query(Portfolio).filter(Portfolio.user_id==user_id)
+
+    if query.id_portfolio:
+        portfolios = portfolios.filter(Portfolio.id==query.id_portfolio)
+
+    if query.start_date:
+        portfolios = portfolios.filter(Portfolio.start_date>=query.start_date)
+
+    if query.end_date:
+        portfolios = portfolios.filter(Portfolio.end_date<=query.end_date)
+
+    session.close()
+
+    return apresenta_lista_portfolios(portfolios.all()), 200
+
+@app.get('/portfolio_optimazer',tags=[user_tag],responses={"200":PortfolioBodyJsonSchema},description="Cria um portfolio otimizado")
+@jwt_required()
+def portfolio_optimizer(query:OptimizatonSchema):
+    
+    n = None
+    asset_list= None
+    if query.opt_parameter.isdigit():
+        n = int(query.opt_parameter)
+    else:
+        asset_list = query.opt_parameter
+
+    if n is not None:
+        query = f"n_assets_portfolio={n}"
+    else:
+        query = f"asset_list={asset_list}"
+
+    url = f"http://localhost:5002/optimize?{query}"
+
+    payload={}
+    headers = {}
+    response = requests.request("GET", url, headers=headers, data=payload)
+
+   
+    return [{"asset":p.asset,"weight":p.weight} for p in response.json()], 200
+        
 
 @app.post('/auth',tags=[user_tag])
 def auth_user(form:UserLoginSchema):
@@ -87,6 +194,9 @@ def auth_user(form:UserLoginSchema):
         return jsonify(access_token=access_token)
     else:
         return jsonify({'message': 'Invalid credentials'}), 401
+    
+
+
 
 if __name__ == '__main__':
     app.run(debug=True)

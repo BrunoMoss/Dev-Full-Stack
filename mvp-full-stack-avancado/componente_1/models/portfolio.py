@@ -1,18 +1,20 @@
 from sqlalchemy import Column, String, Integer, DateTime, ForeignKey,Float
 from sqlalchemy.orm import relationship
-from sqlalchemy.schema import PrimaryKeyConstraint
+from sqlalchemy.schema import PrimaryKeyConstraint,UniqueConstraint
 from datetime import datetime
 from typing import Union
 
-from  models import Base, User
+from models import Base
+
 
 
 class Portfolio(Base):
 
     __tablename__ = 'portfolio'
 
-    id = Column(Integer, primary_key=True)
-    asset = Column(String(50),primary_key=True)
+    id_pk = Column('pk_port',Integer, primary_key=True)
+    id = Column(Integer, nullable=False)
+    asset = Column(String(50),nullable=False)
     weight = Column(Float,nullable=False)
     start_date = Column(DateTime,nullable=False)
     end_date = Column(DateTime)
@@ -23,15 +25,16 @@ class Portfolio(Base):
     
 
     # Criando um requisito de unicidade envolvendo uma par de informações
-    __table_args__ = (PrimaryKeyConstraint("id", "asset", name="port_composite_key"),)
+    __table_args__ = (UniqueConstraint("id", "asset",'start_date','user_id', name="port_composite_key"),)
 
     user = relationship('User',back_populates='portfolios')
 
-    def __init__(self, asset:str,weight:float,start_date:datetime,end_date:datetime, data_insercao:Union[DateTime, None] = None):
+    def __init__(self,id:int,asset:str,weight:float,start_date:datetime,end_date:datetime, data_insercao:Union[DateTime, None] = None):
         """
         Cria um Portfolio
 
         Arguments:
+            id: Inteiro sequencial identificador do portfolio.
             asset: Ativo pertencente ao portfolio.
             weight: Peso do ativo no portfolio.
             start_date: Data inicial do portfolio.
@@ -39,6 +42,7 @@ class Portfolio(Base):
             data_insercao: data de quando o portfolio foi feito ou inserido
                            à base
         """
+        self.id = id
         self.asset = asset
         self.weight = weight
         self.start_date = start_date
@@ -51,6 +55,7 @@ class Portfolio(Base):
         Retorna a representação em dicionário do Objeto Portfolio.
         """
         return{
+            "id":self.id_pk,
             "portfolio_id":self.id,
             "asset": self.asset,
             "weight": self.weight,

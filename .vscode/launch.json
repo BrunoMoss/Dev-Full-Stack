@@ -10,7 +10,7 @@
             "request": "launch",
             "module": "flask",
             "env": {
-                "FLASK_APP": "mvp-full-stack-avancado\\componente_1\\app.py",
+                "FLASK_APP": "mvp-full-stack-avancado\\componente_3\\app.py",
                 "FLASK_DEBUG": "1"
             },
             "args": [
@@ -20,7 +20,7 @@
             ],
             "jinja": true,
             "autoStartBrowser": false,
-            "cwd":"C:\\Users\\mossb\\Projetos\\Git\\Dev-Full-Stack\\mvp-full-stack-avancado\\componente_1"
+            "cwd":"C:\\Users\\mossb\\Projetos\\Git\\Dev-Full-Stack\\mvp-full-stack-avancado\\componente_3"
         }
     ]
 }

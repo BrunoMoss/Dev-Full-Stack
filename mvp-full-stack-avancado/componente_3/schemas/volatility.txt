@@ -1,0 +1,26 @@
+from pydantic import BaseModel
+from datetime import datetime
+from typing import Optional, List
+
+
+class VolatilitySchema(BaseModel):
+    """ Define como um dado de volatilidade deve ser representado
+    """
+    asset: str = 'SQQQ'
+    volatility: float = 0
+    pvalue:float = 0
+    date: datetime = datetime.today()
+
+
+class VolatilityQuerySchema(BaseModel):
+    """ Define como o dado de volatilidade deve ser coletado
+    """
+    n: int = 10
+    assets:str = 'SQQQ,SPY'
+
+class VolatilityAddSchema(BaseModel):
+    """ Define como deve ser a estrutura do dado retornado após uma 
+    requisição para inserir um dado
+    """
+    message: str
+    n: int

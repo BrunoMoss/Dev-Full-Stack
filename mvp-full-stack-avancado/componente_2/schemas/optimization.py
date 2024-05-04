@@ -1,11 +1,12 @@
 from pydantic import BaseModel
-
+from typing import Optional, List
 
 class OptimizatonSchema(BaseModel):
-    """ Define como portfolio de usuário deve ser representado
+    """ Define os parêmetros da otimização
     """
-    vol: str = 'BAIXA'
-    n_assets: float = 10
+    asset_list: Optional[str] = 'SQQQ,SPY,FXI'
+    n_assets_portfolio: float = 10
+    
     
 
 
