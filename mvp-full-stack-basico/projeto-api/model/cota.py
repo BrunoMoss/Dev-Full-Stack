@@ -5,6 +5,7 @@ from typing import Union
 from  model import Base
 
 
+
 class Cota(Base):
     
     __tablename__ = 'cota'
